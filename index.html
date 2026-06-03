@@ -124,7 +124,7 @@
   }
   .stat-row {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: 1fr 1fr 1fr 1fr;
     gap: 1px;
     background: var(--border);
     border: 1px solid var(--border);
@@ -413,11 +413,11 @@
       </div>
       <div class="stat-item">
         <div class="stat-num highlight" id="statAbsent">0</div>
-        <div class="stat-lbl">Days abroad (Post-PR)</div>
+        <div class="stat-lbl">Days abroad</div>
       </div>
       <div class="stat-item">
         <div class="stat-num" id="statTR" style="color:#2e7d32;">+0</div>
-        <div class="stat-lbl">TR Credit Bonus</div>
+        <div class="stat-lbl">Student bonus</div>
       </div>
       <div class="stat-item">
         <div class="stat-num" id="statLeft">—</div>
@@ -430,6 +430,7 @@
   </div>
 </div>
 
+<!-- SETUP -->
 <div class="section">
   <div class="section-title">Your details</div>
   <div class="setup-card">
@@ -470,7 +471,7 @@
       <div class="tr-credit-box" id="trCreditBox">
         <div>
           <span class="tr-credit-num" id="trRawDays">—</span>
-          <span class="tr-credit-sub">days physically in Canada</span>
+          <span class="tr-credit-sub">days as temp resident</span>
         </div>
         <div class="tr-arrow">→</div>
         <div>
@@ -481,6 +482,7 @@
     </div>
   </div>
 
+  <!-- TRAVEL LOG -->
   <div class="section-title">Travel log</div>
   <p style="font-size:0.88rem;color:var(--text-muted);margin-bottom:1rem;">
     Add every trip you took outside Canada. Only days physically in Canada count toward the 1,095 requirement. Days you departed and days you returned are counted as Canadian days per IRCC rules.
@@ -489,6 +491,7 @@
   <button class="add-trip-btn" id="addTripBtn">+ Add a trip abroad</button>
 </div>
 
+<!-- TIMELINE -->
 <div class="section">
   <div class="section-title">Milestones</div>
   <div class="timeline" id="timeline"></div>
@@ -503,6 +506,7 @@
 <script>
 const REQUIRED_DAYS = 1095;
 const WINDOW_YEARS = 5;
+const MAX_TR_CREDIT = 365;
 
 function saveData() {
   const data = {
@@ -549,23 +553,46 @@ function formatDate(date) {
   return date.toLocaleDateString('en-CA', { year: 'numeric', month: 'long', day: 'numeric' });
 }
 
-function calcDaysAbroad(trips, startLimit, endLimit) {
+function calcDaysAbroad(trips, prDate, today) {
   let absent = 0;
   trips.forEach(t => {
     const dep = parseDate(t.dep);
     const ret = parseDate(t.ret);
     if (!dep || !ret || dep >= ret) return;
-    
-    // Intersect the trip with our boundary window
-    const effectiveDep = dep < startLimit ? startLimit : dep;
-    const effectiveRet = ret > endLimit ? endLimit : ret;
+    const effectiveDep = dep < prDate ? prDate : dep;
+    const effectiveRet = ret > today ? today : ret;
     if (effectiveDep >= effectiveRet) return;
-    
-    // IRCC interior days logic (departure/return count as inside Canada)
+    // IRCC: departure day = Canada day, return day = Canada day → subtract interior days only
     const abroadDays = daysBetween(effectiveDep, effectiveRet) - 1;
     if (abroadDays > 0) absent += abroadDays;
   });
   return absent;
+}
+
+function calcTRCredit() {
+  if (!document.getElementById('trEnabled').checked) return { raw: 0, credit: 0 };
+  const start = parseDate(document.getElementById('trStart').value);
+  const end = parseDate(document.getElementById('trEnd').value);
+  if (!start || !end || end <= start) return { raw: 0, credit: 0 };
+  const rawDays = daysBetween(start, end);
+  const credit = Math.min(MAX_TR_CREDIT, Math.floor(rawDays / 2));
+  return { raw: rawDays, credit };
+}
+
+function updateTRBox() {
+  const { raw, credit } = calcTRCredit();
+  const enabled = document.getElementById('trEnabled').checked;
+  const start = document.getElementById('trStart').value;
+  const end = document.getElementById('trEnd').value;
+  if (enabled && start && end) {
+    document.getElementById('trRawDays').textContent = raw.toLocaleString();
+    document.getElementById('trCreditDays').textContent = '+' + credit.toLocaleString();
+  } else {
+    document.getElementById('trRawDays').textContent = '—';
+    document.getElementById('trCreditDays').textContent = '—';
+  }
+  recalculate();
+  saveData();
 }
 
 function recalculate() {
@@ -575,11 +602,6 @@ function recalculate() {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
 
-  // Toggle TR display view state
-  const trEnabled = document.getElementById('trEnabled').checked;
-  document.getElementById('trFields').style.display = trEnabled ? 'block' : 'none';
-
-  // Update hero personalization
   const heroH1 = document.querySelector('.hero h1');
   heroH1.innerHTML = name
     ? `${name}'s Path to<br>Canadian Citizenship`
@@ -600,65 +622,37 @@ function recalculate() {
   }
 
   const trips = getTripsFromDOM();
-
-  // 1. Calculate Temporary Residency Credit
-  let trCreditBonus = 0;
-  if (trEnabled) {
-    const trStart = parseDate(document.getElementById('trStart').value);
-    const trEnd = parseDate(document.getElementById('trEnd').value);
-
-    if (trStart && trEnd && trStart < trEnd) {
-      // Total elapsed days in TR period
-      const totalTRDays = daysBetween(trStart, trEnd) + 1;
-      // Subtract absences during the TR phase
-      const trAbsences = calcDaysAbroad(trips, trStart, trEnd);
-      const physicalTRDays = Math.max(0, totalTRDays - trAbsences);
-      
-      // Half credit conversion, max 365
-      trCreditBonus = Math.min(365, Math.floor(physicalTRDays / 2));
-
-      document.getElementById('trRawDays').textContent = physicalTRDays.toLocaleString();
-      document.getElementById('trCreditDays').textContent = trCreditBonus.toLocaleString();
-    } else {
-      document.getElementById('trRawDays').textContent = '—';
-      document.getElementById('trCreditDays').textContent = '—';
-    }
-  }
-
-  // 2. Calculate Post-PR Days
   const totalDaysSincePR = daysBetween(prDate, today) + 1;
-  const daysAbroadPostPR = calcDaysAbroad(trips, prDate, today);
-  const physicalDaysPostPR = totalDaysSincePR - daysAbroadPostPR;
+  const daysAbroad = calcDaysAbroad(trips, prDate, today);
+  const daysInCanadaPR = totalDaysSincePR - daysAbroad;
+  const { credit: trCredit } = calcTRCredit();
+  const totalEffective = daysInCanadaPR + trCredit;
 
-  // 3. Final Aggregations
-  const daysInCanada = physicalDaysPostPR + trCreditBonus;
-  const daysLeft = Math.max(0, REQUIRED_DAYS - daysInCanada);
-  const pct = Math.min(100, Math.round((daysInCanada / REQUIRED_DAYS) * 100));
+  const daysLeft = Math.max(0, REQUIRED_DAYS - totalEffective);
+  const pct = Math.min(100, Math.round((totalEffective / REQUIRED_DAYS) * 100));
 
-  // Projected eligible date calculation
   let projDate = null;
-  if (daysInCanada < REQUIRED_DAYS) {
+  if (totalEffective < REQUIRED_DAYS) {
     projDate = new Date(today);
     projDate.setDate(projDate.getDate() + daysLeft);
   }
 
-  // Update Main Dashboard Stats
-  document.getElementById('daysCount').textContent = daysInCanada.toLocaleString();
+  document.getElementById('daysCount').textContent = totalEffective.toLocaleString();
   document.getElementById('progressBar').style.width = pct + '%';
   document.getElementById('progressPct').textContent = pct + '% complete';
   document.getElementById('projectedDate').textContent = projDate
-    ? 'Eligible ~ ' + formatDate(projDate)
+    ? 'Eligible ~' + formatDate(projDate)
     : '✓ Eligible now';
-  document.getElementById('statTotal').textContent = totalDaysSincePR.toLocaleString();
-  document.getElementById('statAbsent').textContent = daysAbroadPostPR.toLocaleString();
-  document.getElementById('statTR').textContent = '+' + trCreditBonus.toLocaleString();
+  document.getElementById('statTotal').textContent = daysInCanadaPR.toLocaleString();
+  document.getElementById('statAbsent').textContent = daysAbroad.toLocaleString();
+  document.getElementById('statTR').textContent = '+' + trCredit.toLocaleString();
   document.getElementById('statLeft').textContent = daysLeft.toLocaleString();
-  document.getElementById('eligibleBanner').classList.toggle('visible', daysInCanada >= REQUIRED_DAYS);
+  document.getElementById('eligibleBanner').classList.toggle('visible', totalEffective >= REQUIRED_DAYS);
 
-  renderTimeline(prDate, today, daysInCanada, projDate);
+  renderTimeline(prDate, today, totalEffective, projDate, trCredit);
 }
 
-function renderTimeline(prDate, today, daysInCanada, projDate) {
+function renderTimeline(prDate, today, effectiveDays, projDate, trCredit) {
   const tl = document.getElementById('timeline');
   tl.innerHTML = '';
   if (!prDate) {
@@ -666,13 +660,19 @@ function renderTimeline(prDate, today, daysInCanada, projDate) {
     return;
   }
 
-  const milestones = [
+  const milestones = [];
+
+  if (trCredit > 0) {
+    milestones.push({ label: `Student credit applied: +${trCredit} days`, date: prDate, desc: `${trCredit} bonus days added from your time as a student in Canada (½ rate, max 365).`, type: 'done' });
+  }
+
+  milestones.push(
     { label: 'Landed as Permanent Resident', date: prDate, desc: 'Your Canadian PR journey begins.', type: 'done' },
-    { label: '25% — 274 days milestones', date: null, days: 274, desc: 'First quarter milestone.', type: null },
-    { label: '50% — 547 days milestones', date: null, days: 547, desc: 'Halfway there!', type: null },
-    { label: '75% — 821 days milestones', date: null, days: 821, desc: 'Final stretch.', type: null },
-    { label: 'Eligible to apply for citizenship', date: projDate, desc: '1,095 physical presence days reached.', type: null },
-  ];
+    { label: '25% — 274 effective days', date: null, days: 274, desc: 'First quarter milestone.', type: null },
+    { label: '50% — 547 effective days', date: null, days: 547, desc: 'Halfway there!', type: null },
+    { label: '75% — 821 effective days', date: null, days: 821, desc: 'Final stretch.', type: null },
+    { label: 'Eligible to apply for citizenship', date: projDate, desc: '1,095 effective days reached.', type: null }
+  );
 
   milestones.forEach((m, i) => {
     const div = document.createElement('div');
@@ -681,17 +681,17 @@ function renderTimeline(prDate, today, daysInCanada, projDate) {
     let dotClass = 'tl-dot';
     let dateStr = '';
 
-    if (i === 0) {
+    if (m.type === 'done') {
       dotClass += ' done';
-      dateStr = formatDate(prDate);
+      dateStr = formatDate(m.date);
     } else if (m.days !== undefined) {
-      const reached = daysInCanada >= m.days;
-      dotClass += reached ? ' done' : (daysInCanada >= m.days - 30 ? ' current' : '');
-      dateStr = reached ? '✓ Reached' : `${m.days - daysInCanada} days to go`;
-    } else if (m.date || daysInCanada >= REQUIRED_DAYS) {
-      const eligible = daysInCanada >= REQUIRED_DAYS;
+      const reached = effectiveDays >= m.days;
+      dotClass += reached ? ' done' : (effectiveDays >= m.days - 30 ? ' current' : '');
+      dateStr = reached ? '✓ Reached' : `${m.days - effectiveDays} days to go`;
+    } else if (m.date || effectiveDays >= REQUIRED_DAYS) {
+      const eligible = effectiveDays >= REQUIRED_DAYS;
       dotClass += eligible ? ' done' : ' current';
-      dateStr = eligible ? 'You are eligible now!' : 'Estimated: ' + formatDate(m.date);
+      dateStr = eligible ? 'You are eligible now!' : (m.date ? 'Estimated: ' + formatDate(m.date) : '');
     }
 
     div.innerHTML = `
@@ -738,16 +738,18 @@ function addTrip(dep = '', ret = '') {
   delBtn.addEventListener('click', () => { item.remove(); recalculate(); saveData(); });
 
   if (dep && ret) updateBadge();
-
   list.appendChild(item);
 }
 
-// Init & Event Listeners
+// Init
 const saved = loadData();
 if (saved) {
   if (saved.prDate) document.getElementById('prDate').value = saved.prDate;
   if (saved.userName) document.getElementById('userName').value = saved.userName;
-  if (saved.trEnabled !== undefined) document.getElementById('trEnabled').checked = saved.trEnabled;
+  if (saved.trEnabled) {
+    document.getElementById('trEnabled').checked = true;
+    document.getElementById('trFields').style.display = 'block';
+  }
   if (saved.trStart) document.getElementById('trStart').value = saved.trStart;
   if (saved.trEnd) document.getElementById('trEnd').value = saved.trEnd;
   if (saved.trips && saved.trips.length) {
@@ -757,11 +759,16 @@ if (saved) {
 
 document.getElementById('prDate').addEventListener('change', () => { recalculate(); saveData(); });
 document.getElementById('userName').addEventListener('input', () => { recalculate(); saveData(); });
-document.getElementById('trEnabled').addEventListener('change', () => { recalculate(); saveData(); });
-document.getElementById('trStart').addEventListener('change', () => { recalculate(); saveData(); });
-document.getElementById('trEnd').addEventListener('change', () => { recalculate(); saveData(); });
 document.getElementById('addTripBtn').addEventListener('click', () => addTrip());
 
+document.getElementById('trEnabled').addEventListener('change', function() {
+  document.getElementById('trFields').style.display = this.checked ? 'block' : 'none';
+  updateTRBox();
+});
+document.getElementById('trStart').addEventListener('change', updateTRBox);
+document.getElementById('trEnd').addEventListener('change', updateTRBox);
+
+updateTRBox();
 recalculate();
 </script>
 </body>
