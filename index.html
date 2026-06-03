@@ -433,3 +433,336 @@
 <div class="section">
   <div class="section-title">Your details</div>
   <div class="setup-card">
+    <div class="field-group">
+      <label>PR Landing Date</label>
+      <input type="date" id="prDate" />
+      <p class="field-hint">The date you first landed in Canada as a Permanent Resident.</p>
+    </div>
+    <div class="field-group">
+      <label>Name (optional)</label>
+      <input type="text" id="userName" placeholder="e.g. Alex" style="width:100%;padding:0.7rem 1rem;border:1.5px solid var(--border);border-radius:10px;font-family:'DM Sans',sans-serif;font-size:0.95rem;background:white;outline:none;" />
+    </div>
+  </div>
+
+  <div class="section-title">Temporary resident credit</div>
+  <p style="font-size:0.88rem;color:var(--text-muted);margin-bottom:1rem;">
+    Time spent in Canada as a temporary resident (student or worker) before becoming a PR counts at <strong>half credit</strong> — up to a maximum bonus of <strong>365 days</strong>. Enter your study permit period below.
+  </p>
+  <div class="tr-card">
+    <div class="tr-toggle-row">
+      <label class="tr-toggle-label">
+        <input type="checkbox" id="trEnabled" />
+        <span>I was a temporary resident (student) before my PR</span>
+      </label>
+    </div>
+    <div class="tr-fields" id="trFields" style="display:none;">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-top:1rem;">
+        <div class="field-group" style="margin:0;">
+          <label>Study permit start</label>
+          <input type="date" id="trStart" />
+        </div>
+        <div class="field-group" style="margin:0;">
+          <label>Study permit end / PR date</label>
+          <input type="date" id="trEnd" />
+          <p class="field-hint">Usually the same as your PR landing date.</p>
+        </div>
+      </div>
+      <div class="tr-credit-box" id="trCreditBox">
+        <div>
+          <span class="tr-credit-num" id="trRawDays">—</span>
+          <span class="tr-credit-sub">days physically in Canada</span>
+        </div>
+        <div class="tr-arrow">→</div>
+        <div>
+          <span class="tr-credit-num green" id="trCreditDays">—</span>
+          <span class="tr-credit-sub">days credited (½ rate, max 365)</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-title">Travel log</div>
+  <p style="font-size:0.88rem;color:var(--text-muted);margin-bottom:1rem;">
+    Add every trip you took outside Canada. Only days physically in Canada count toward the 1,095 requirement. Days you departed and days you returned are counted as Canadian days per IRCC rules.
+  </p>
+  <div class="trip-list" id="tripList"></div>
+  <button class="add-trip-btn" id="addTripBtn">+ Add a trip abroad</button>
+</div>
+
+<div class="section">
+  <div class="section-title">Milestones</div>
+  <div class="timeline" id="timeline"></div>
+</div>
+
+<footer>
+  Built with 🍁 for the Canadian citizenship journey &nbsp;·&nbsp;
+  <a href="https://www.canada.ca/en/immigration-refugees-citizenship/services/canadian-citizenship/become-citizen/eligibility.html" target="_blank" rel="noopener">IRCC official rules</a>
+  &nbsp;·&nbsp; Data saved locally in your browser.
+</footer>
+
+<script>
+const REQUIRED_DAYS = 1095;
+const WINDOW_YEARS = 5;
+
+function saveData() {
+  const data = {
+    prDate: document.getElementById('prDate').value,
+    userName: document.getElementById('userName').value,
+    trEnabled: document.getElementById('trEnabled').checked,
+    trStart: document.getElementById('trStart').value,
+    trEnd: document.getElementById('trEnd').value,
+    trips: getTripsFromDOM()
+  };
+  localStorage.setItem('cit_tracker', JSON.stringify(data));
+}
+
+function loadData() {
+  try {
+    const raw = localStorage.getItem('cit_tracker');
+    return raw ? JSON.parse(raw) : null;
+  } catch { return null; }
+}
+
+function getTripsFromDOM() {
+  const items = document.querySelectorAll('.trip-item');
+  const trips = [];
+  items.forEach(item => {
+    const [depIn, retIn] = item.querySelectorAll('input[type="date"]');
+    if (depIn.value && retIn.value) {
+      trips.push({ dep: depIn.value, ret: retIn.value });
+    }
+  });
+  return trips;
+}
+
+function daysBetween(d1, d2) {
+  return Math.round((d2 - d1) / 86400000);
+}
+
+function parseDate(str) {
+  if (!str) return null;
+  const [y, m, d] = str.split('-').map(Number);
+  return new Date(y, m - 1, d);
+}
+
+function formatDate(date) {
+  return date.toLocaleDateString('en-CA', { year: 'numeric', month: 'long', day: 'numeric' });
+}
+
+function calcDaysAbroad(trips, startLimit, endLimit) {
+  let absent = 0;
+  trips.forEach(t => {
+    const dep = parseDate(t.dep);
+    const ret = parseDate(t.ret);
+    if (!dep || !ret || dep >= ret) return;
+    
+    // Intersect the trip with our boundary window
+    const effectiveDep = dep < startLimit ? startLimit : dep;
+    const effectiveRet = ret > endLimit ? endLimit : ret;
+    if (effectiveDep >= effectiveRet) return;
+    
+    // IRCC interior days logic (departure/return count as inside Canada)
+    const abroadDays = daysBetween(effectiveDep, effectiveRet) - 1;
+    if (abroadDays > 0) absent += abroadDays;
+  });
+  return absent;
+}
+
+function recalculate() {
+  const prVal = document.getElementById('prDate').value;
+  const name = document.getElementById('userName').value.trim();
+  const prDate = parseDate(prVal);
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  // Toggle TR display view state
+  const trEnabled = document.getElementById('trEnabled').checked;
+  document.getElementById('trFields').style.display = trEnabled ? 'block' : 'none';
+
+  // Update hero personalization
+  const heroH1 = document.querySelector('.hero h1');
+  heroH1.innerHTML = name
+    ? `${name}'s Path to<br>Canadian Citizenship`
+    : `On the Path to<br>Canadian Citizenship`;
+
+  if (!prDate || prDate > today) {
+    document.getElementById('daysCount').textContent = '—';
+    document.getElementById('progressBar').style.width = '0%';
+    document.getElementById('progressPct').textContent = '0%';
+    document.getElementById('projectedDate').textContent = 'Enter your PR date above';
+    document.getElementById('statTotal').textContent = '—';
+    document.getElementById('statAbsent').textContent = '—';
+    document.getElementById('statTR').textContent = '+0';
+    document.getElementById('statLeft').textContent = '—';
+    document.getElementById('eligibleBanner').classList.remove('visible');
+    renderTimeline(null, null, null, null);
+    return;
+  }
+
+  const trips = getTripsFromDOM();
+
+  // 1. Calculate Temporary Residency Credit
+  let trCreditBonus = 0;
+  if (trEnabled) {
+    const trStart = parseDate(document.getElementById('trStart').value);
+    const trEnd = parseDate(document.getElementById('trEnd').value);
+
+    if (trStart && trEnd && trStart < trEnd) {
+      // Total elapsed days in TR period
+      const totalTRDays = daysBetween(trStart, trEnd) + 1;
+      // Subtract absences during the TR phase
+      const trAbsences = calcDaysAbroad(trips, trStart, trEnd);
+      const physicalTRDays = Math.max(0, totalTRDays - trAbsences);
+      
+      // Half credit conversion, max 365
+      trCreditBonus = Math.min(365, Math.floor(physicalTRDays / 2));
+
+      document.getElementById('trRawDays').textContent = physicalTRDays.toLocaleString();
+      document.getElementById('trCreditDays').textContent = trCreditBonus.toLocaleString();
+    } else {
+      document.getElementById('trRawDays').textContent = '—';
+      document.getElementById('trCreditDays').textContent = '—';
+    }
+  }
+
+  // 2. Calculate Post-PR Days
+  const totalDaysSincePR = daysBetween(prDate, today) + 1;
+  const daysAbroadPostPR = calcDaysAbroad(trips, prDate, today);
+  const physicalDaysPostPR = totalDaysSincePR - daysAbroadPostPR;
+
+  // 3. Final Aggregations
+  const daysInCanada = physicalDaysPostPR + trCreditBonus;
+  const daysLeft = Math.max(0, REQUIRED_DAYS - daysInCanada);
+  const pct = Math.min(100, Math.round((daysInCanada / REQUIRED_DAYS) * 100));
+
+  // Projected eligible date calculation
+  let projDate = null;
+  if (daysInCanada < REQUIRED_DAYS) {
+    projDate = new Date(today);
+    projDate.setDate(projDate.getDate() + daysLeft);
+  }
+
+  // Update Main Dashboard Stats
+  document.getElementById('daysCount').textContent = daysInCanada.toLocaleString();
+  document.getElementById('progressBar').style.width = pct + '%';
+  document.getElementById('progressPct').textContent = pct + '% complete';
+  document.getElementById('projectedDate').textContent = projDate
+    ? 'Eligible ~ ' + formatDate(projDate)
+    : '✓ Eligible now';
+  document.getElementById('statTotal').textContent = totalDaysSincePR.toLocaleString();
+  document.getElementById('statAbsent').textContent = daysAbroadPostPR.toLocaleString();
+  document.getElementById('statTR').textContent = '+' + trCreditBonus.toLocaleString();
+  document.getElementById('statLeft').textContent = daysLeft.toLocaleString();
+  document.getElementById('eligibleBanner').classList.toggle('visible', daysInCanada >= REQUIRED_DAYS);
+
+  renderTimeline(prDate, today, daysInCanada, projDate);
+}
+
+function renderTimeline(prDate, today, daysInCanada, projDate) {
+  const tl = document.getElementById('timeline');
+  tl.innerHTML = '';
+  if (!prDate) {
+    tl.innerHTML = '<p style="font-size:0.88rem;color:var(--text-muted);">Enter your PR date to see your milestones.</p>';
+    return;
+  }
+
+  const milestones = [
+    { label: 'Landed as Permanent Resident', date: prDate, desc: 'Your Canadian PR journey begins.', type: 'done' },
+    { label: '25% — 274 days milestones', date: null, days: 274, desc: 'First quarter milestone.', type: null },
+    { label: '50% — 547 days milestones', date: null, days: 547, desc: 'Halfway there!', type: null },
+    { label: '75% — 821 days milestones', date: null, days: 821, desc: 'Final stretch.', type: null },
+    { label: 'Eligible to apply for citizenship', date: projDate, desc: '1,095 physical presence days reached.', type: null },
+  ];
+
+  milestones.forEach((m, i) => {
+    const div = document.createElement('div');
+    div.className = 'tl-item';
+
+    let dotClass = 'tl-dot';
+    let dateStr = '';
+
+    if (i === 0) {
+      dotClass += ' done';
+      dateStr = formatDate(prDate);
+    } else if (m.days !== undefined) {
+      const reached = daysInCanada >= m.days;
+      dotClass += reached ? ' done' : (daysInCanada >= m.days - 30 ? ' current' : '');
+      dateStr = reached ? '✓ Reached' : `${m.days - daysInCanada} days to go`;
+    } else if (m.date || daysInCanada >= REQUIRED_DAYS) {
+      const eligible = daysInCanada >= REQUIRED_DAYS;
+      dotClass += eligible ? ' done' : ' current';
+      dateStr = eligible ? 'You are eligible now!' : 'Estimated: ' + formatDate(m.date);
+    }
+
+    div.innerHTML = `
+      <div class="${dotClass}"></div>
+      <div class="tl-date">${dateStr}</div>
+      <div class="tl-title">${m.label}</div>
+      <div class="tl-desc">${m.desc}</div>
+    `;
+    tl.appendChild(div);
+  });
+}
+
+function addTrip(dep = '', ret = '') {
+  const list = document.getElementById('tripList');
+  const item = document.createElement('div');
+  item.className = 'trip-item';
+  item.innerHTML = `
+    <input type="date" class="trip-dep" value="${dep}" placeholder="Departure" />
+    <input type="date" class="trip-ret" value="${ret}" placeholder="Return" />
+    <span class="trip-days-badge">— days</span>
+    <button class="trip-delete" title="Remove trip">✕</button>
+  `;
+
+  const depIn = item.querySelector('.trip-dep');
+  const retIn = item.querySelector('.trip-ret');
+  const badge = item.querySelector('.trip-days-badge');
+  const delBtn = item.querySelector('.trip-delete');
+
+  function updateBadge() {
+    const d = parseDate(depIn.value);
+    const r = parseDate(retIn.value);
+    if (d && r && r > d) {
+      const nights = daysBetween(d, r) - 1;
+      badge.textContent = Math.max(0, nights) + ' days abroad';
+    } else {
+      badge.textContent = '— days';
+    }
+    recalculate();
+    saveData();
+  }
+
+  depIn.addEventListener('change', updateBadge);
+  retIn.addEventListener('change', updateBadge);
+  delBtn.addEventListener('click', () => { item.remove(); recalculate(); saveData(); });
+
+  if (dep && ret) updateBadge();
+
+  list.appendChild(item);
+}
+
+// Init & Event Listeners
+const saved = loadData();
+if (saved) {
+  if (saved.prDate) document.getElementById('prDate').value = saved.prDate;
+  if (saved.userName) document.getElementById('userName').value = saved.userName;
+  if (saved.trEnabled !== undefined) document.getElementById('trEnabled').checked = saved.trEnabled;
+  if (saved.trStart) document.getElementById('trStart').value = saved.trStart;
+  if (saved.trEnd) document.getElementById('trEnd').value = saved.trEnd;
+  if (saved.trips && saved.trips.length) {
+    saved.trips.forEach(t => addTrip(t.dep, t.ret));
+  }
+}
+
+document.getElementById('prDate').addEventListener('change', () => { recalculate(); saveData(); });
+document.getElementById('userName').addEventListener('input', () => { recalculate(); saveData(); });
+document.getElementById('trEnabled').addEventListener('change', () => { recalculate(); saveData(); });
+document.getElementById('trStart').addEventListener('change', () => { recalculate(); saveData(); });
+document.getElementById('trEnd').addEventListener('change', () => { recalculate(); saveData(); });
+document.getElementById('addTripBtn').addEventListener('click', () => addTrip());
+
+recalculate();
+</script>
+</body>
+</html>
