@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Canada Citizenship Tracker</title>
+<title>Shreya's Canada Citizenship Tracker</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
@@ -31,7 +31,6 @@
     overflow-x: hidden;
   }
 
-  /* HERO */
   .hero {
     background: var(--red);
     color: white;
@@ -70,7 +69,6 @@
     font-weight: 300;
   }
 
-  /* MAIN COUNTER */
   .counter-wrap {
     display: flex;
     justify-content: center;
@@ -163,7 +161,6 @@
   }
   .eligible-banner.visible { display: block; }
 
-  /* SECTIONS */
   .section {
     padding: 3rem 1.5rem;
     max-width: 700px;
@@ -178,73 +175,44 @@
     display: inline-block;
   }
 
-  /* SETUP CARD */
-  .setup-card {
-    background: var(--surface);
-    border-radius: 16px;
-    padding: 1.75rem;
+  /* INFO CARDS */
+  .info-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
     margin-bottom: 2rem;
   }
-  .field-group {
-    margin-bottom: 1.25rem;
+  .info-card {
+    background: var(--surface);
+    border-radius: 16px;
+    padding: 1.25rem 1.5rem;
   }
-  .field-group label {
-    display: block;
-    font-size: 0.8rem;
-    letter-spacing: 0.08em;
+  .info-card-label {
+    font-size: 0.72rem;
+    letter-spacing: 0.1em;
     text-transform: uppercase;
     color: var(--text-muted);
-    margin-bottom: 0.5rem;
-    font-weight: 500;
+    margin-bottom: 0.4rem;
   }
-  .field-group input[type="date"],
-  .field-group input[type="number"] {
-    width: 100%;
-    padding: 0.7rem 1rem;
-    border: 1.5px solid var(--border);
-    border-radius: 10px;
-    font-family: 'DM Sans', sans-serif;
-    font-size: 0.95rem;
-    background: white;
+  .info-card-value {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.1rem;
+    font-weight: 700;
     color: var(--text);
-    outline: none;
-    transition: border-color 0.2s;
-  }
-  .field-group input:focus {
-    border-color: var(--red);
-  }
-  .field-hint {
-    font-size: 0.75rem;
-    color: var(--text-muted);
-    margin-top: 0.3rem;
   }
 
-  /* TEMP RESIDENT CARD */
-  .tr-card {
+  /* TR CREDIT BOX */
+  .tr-summary {
     background: var(--surface);
     border-radius: 16px;
     padding: 1.5rem 1.75rem;
     margin-bottom: 2rem;
   }
-  .tr-toggle-row { display: flex; align-items: center; }
-  .tr-toggle-label {
-    display: flex;
-    align-items: center;
-    gap: 0.6rem;
-    font-size: 0.92rem;
-    font-weight: 500;
-    cursor: pointer;
-  }
-  .tr-toggle-label input[type="checkbox"] {
-    width: 16px; height: 16px;
-    accent-color: var(--red);
-    cursor: pointer;
-  }
   .tr-credit-box {
     display: flex;
     align-items: center;
     gap: 1.25rem;
-    margin-top: 1.25rem;
+    margin-top: 1rem;
     background: white;
     border: 1px solid var(--border);
     border-radius: 12px;
@@ -278,7 +246,7 @@
   }
   .trip-item {
     display: grid;
-    grid-template-columns: 1fr 1fr auto auto;
+    grid-template-columns: 1fr 1fr auto;
     gap: 0.5rem;
     align-items: center;
     background: white;
@@ -287,52 +255,31 @@
     padding: 0.75rem 1rem;
     font-size: 0.88rem;
   }
-  .trip-item input[type="date"] {
-    border: none;
-    background: transparent;
-    font-family: 'DM Sans', sans-serif;
-    font-size: 0.88rem;
-    color: var(--text);
-    outline: none;
-    width: 100%;
-    padding: 0;
+  .trip-col {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+  .trip-col-label {
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--text-muted);
+  }
+  .trip-col-val {
+    font-weight: 500;
+    font-size: 0.9rem;
   }
   .trip-days-badge {
     background: var(--red-light);
     color: var(--red-dark);
     border-radius: 6px;
-    padding: 2px 8px;
+    padding: 4px 10px;
     font-size: 0.78rem;
     font-weight: 500;
     white-space: nowrap;
     text-align: center;
   }
-  .trip-delete {
-    background: none;
-    border: none;
-    cursor: pointer;
-    color: var(--text-muted);
-    font-size: 1.1rem;
-    line-height: 1;
-    padding: 2px 4px;
-    border-radius: 4px;
-    transition: color 0.15s, background 0.15s;
-  }
-  .trip-delete:hover { color: var(--red); background: var(--red-light); }
-
-  .add-trip-btn {
-    width: 100%;
-    padding: 0.7rem;
-    border: 1.5px dashed var(--border);
-    border-radius: 10px;
-    background: transparent;
-    color: var(--text-muted);
-    font-family: 'DM Sans', sans-serif;
-    font-size: 0.9rem;
-    cursor: pointer;
-    transition: border-color 0.2s, color 0.2s;
-  }
-  .add-trip-btn:hover { border-color: var(--red); color: var(--red); }
 
   /* TIMELINE */
   .timeline {
@@ -368,7 +315,6 @@
   .tl-title { font-weight: 500; font-size: 0.95rem; margin-top: 1px; }
   .tl-desc { font-size: 0.82rem; color: var(--text-muted); margin-top: 2px; }
 
-  /* FOOTER */
   footer {
     text-align: center;
     padding: 2rem 1rem 3rem;
@@ -378,12 +324,11 @@
   }
   footer a { color: var(--red); text-decoration: none; }
 
-  /* RESPONSIVE */
   @media (max-width: 480px) {
     .counter-card { padding: 2rem 1.5rem; }
+    .info-grid { grid-template-columns: 1fr; }
     .trip-item { grid-template-columns: 1fr 1fr; grid-template-rows: auto auto; }
-    .trip-days-badge { grid-row: 2; }
-    .trip-delete { grid-row: 2; justify-self: end; }
+    .trip-days-badge { grid-column: span 2; text-align: center; }
   }
 </style>
 </head>
@@ -391,7 +336,7 @@
 
 <div class="hero">
   <p class="hero-label">My Canadian Citizenship Journey</p>
-  <h1>On the Path to<br>Canadian Citizenship</h1>
+  <h1>Shreya's Path to<br>Canadian Citizenship</h1>
   <p class="hero-sub">Tracking every day towards 1,095</p>
 </div>
 
@@ -409,7 +354,7 @@
     <div class="stat-row">
       <div class="stat-item">
         <div class="stat-num" id="statTotal">—</div>
-        <div class="stat-lbl">Days since PR</div>
+        <div class="stat-lbl">Days in Canada (PR)</div>
       </div>
       <div class="stat-item">
         <div class="stat-num highlight" id="statAbsent">0</div>
@@ -430,54 +375,35 @@
   </div>
 </div>
 
-<!-- SETUP -->
+<!-- DETAILS -->
 <div class="section">
   <div class="section-title">Your details</div>
-  <div class="setup-card">
-    <div class="field-group">
-      <label>PR Landing Date</label>
-      <input type="date" id="prDate" />
-      <p class="field-hint">The date you first landed in Canada as a Permanent Resident.</p>
+  <div class="info-grid">
+    <div class="info-card">
+      <div class="info-card-label">Name</div>
+      <div class="info-card-value">Shreya</div>
     </div>
-    <div class="field-group">
-      <label>Name (optional)</label>
-      <input type="text" id="userName" placeholder="e.g. Alex" style="width:100%;padding:0.7rem 1rem;border:1.5px solid var(--border);border-radius:10px;font-family:'DM Sans',sans-serif;font-size:0.95rem;background:white;outline:none;" />
+    <div class="info-card">
+      <div class="info-card-label">PR Landing Date</div>
+      <div class="info-card-value">September 11, 2025</div>
     </div>
   </div>
 
   <div class="section-title">Temporary resident credit</div>
   <p style="font-size:0.88rem;color:var(--text-muted);margin-bottom:1rem;">
-    Time spent in Canada as a temporary resident (student or worker) before becoming a PR counts at <strong>half credit</strong> — up to a maximum bonus of <strong>365 days</strong>. Enter your study permit period below.
+    Time spent in Canada as a temporary resident (student or worker) before becoming a PR counts at <strong>half credit</strong> — up to a maximum bonus of <strong>365 days</strong>.
   </p>
-  <div class="tr-card">
-    <div class="tr-toggle-row">
-      <label class="tr-toggle-label">
-        <input type="checkbox" id="trEnabled" />
-        <span>I was a temporary resident (student) before my PR</span>
-      </label>
-    </div>
-    <div class="tr-fields" id="trFields" style="display:none;">
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-top:1rem;">
-        <div class="field-group" style="margin:0;">
-          <label>Study permit start</label>
-          <input type="date" id="trStart" />
-        </div>
-        <div class="field-group" style="margin:0;">
-          <label>Study permit end / PR date</label>
-          <input type="date" id="trEnd" />
-          <p class="field-hint">Usually the same as your PR landing date.</p>
-        </div>
+  <div class="tr-summary">
+    <div style="font-size:0.9rem;font-weight:500;">Student permit: <strong>Aug 16, 2019 → Sep 11, 2025</strong></div>
+    <div class="tr-credit-box">
+      <div>
+        <span class="tr-credit-num" id="trRawDays">—</span>
+        <span class="tr-credit-sub">days as temp resident</span>
       </div>
-      <div class="tr-credit-box" id="trCreditBox">
-        <div>
-          <span class="tr-credit-num" id="trRawDays">—</span>
-          <span class="tr-credit-sub">days as temp resident</span>
-        </div>
-        <div class="tr-arrow">→</div>
-        <div>
-          <span class="tr-credit-num green" id="trCreditDays">—</span>
-          <span class="tr-credit-sub">days credited (½ rate, max 365)</span>
-        </div>
+      <div class="tr-arrow">→</div>
+      <div>
+        <span class="tr-credit-num green" id="trCreditDays">—</span>
+        <span class="tr-credit-sub">days credited (½ rate, max 365)</span>
       </div>
     </div>
   </div>
@@ -485,10 +411,9 @@
   <!-- TRAVEL LOG -->
   <div class="section-title">Travel log</div>
   <p style="font-size:0.88rem;color:var(--text-muted);margin-bottom:1rem;">
-    Add every trip you took outside Canada. Only days physically in Canada count toward the 1,095 requirement. Days you departed and days you returned are counted as Canadian days per IRCC rules.
+    Trips outside Canada. Departure and return days count as Canadian days per IRCC rules.
   </p>
   <div class="trip-list" id="tripList"></div>
-  <button class="add-trip-btn" id="addTripBtn">+ Add a trip abroad</button>
 </div>
 
 <!-- TIMELINE -->
@@ -500,276 +425,180 @@
 <footer>
   Built with 🍁 for the Canadian citizenship journey &nbsp;·&nbsp;
   <a href="https://www.canada.ca/en/immigration-refugees-citizenship/services/canadian-citizenship/become-citizen/eligibility.html" target="_blank" rel="noopener">IRCC official rules</a>
-  &nbsp;·&nbsp; Data saved locally in your browser.
 </footer>
 
 <script>
-const REQUIRED_DAYS = 1105;
-const WINDOW_YEARS = 5;
-const MAX_TR_CREDIT = 365;
+  // ─── HARDCODED DATA ───────────────────────────────────────────────
+  const PR_DATE_STR   = '2025-09-11';
+  const TR_START_STR  = '2019-08-16';
+  const TR_END_STR    = '2025-09-11';
+  const TRIPS = [
+    { dep: '2025-10-01', ret: '2025-10-15' },
+    { dep: '2025-12-04', ret: '2026-01-18' },
+    { dep: '2026-06-25', ret: '2026-07-01' },
+    { dep: '2026-08-21', ret: '2026-08-31' },
+    { dep: '2026-10-24', ret: '2026-11-20' },
+    { dep: '2027-01-23', ret: '2027-02-08' },
+  ];
+  // ─────────────────────────────────────────────────────────────────
 
-function saveData() {
-  const data = {
-    prDate: document.getElementById('prDate').value,
-    userName: document.getElementById('userName').value,
-    trEnabled: document.getElementById('trEnabled').checked,
-    trStart: document.getElementById('trStart').value,
-    trEnd: document.getElementById('trEnd').value,
-    trips: getTripsFromDOM()
-  };
-  localStorage.setItem('cit_tracker', JSON.stringify(data));
-}
+  const REQUIRED_DAYS = 1105;
+  const MAX_TR_CREDIT = 365;
 
-function loadData() {
-  try {
-    const raw = localStorage.getItem('cit_tracker');
-    return raw ? JSON.parse(raw) : null;
-  } catch { return null; }
-}
-
-function getTripsFromDOM() {
-  const items = document.querySelectorAll('.trip-item');
-  const trips = [];
-  items.forEach(item => {
-    const [depIn, retIn] = item.querySelectorAll('input[type="date"]');
-    if (depIn.value && retIn.value) {
-      trips.push({ dep: depIn.value, ret: retIn.value });
-    }
-  });
-  return trips;
-}
-
-function daysBetween(d1, d2) {
-  return Math.round((d2 - d1) / 86400000);
-}
-
-function parseDate(str) {
-  if (!str) return null;
-  const [y, m, d] = str.split('-').map(Number);
-  return new Date(y, m - 1, d);
-}
-
-function formatDate(date) {
-  return date.toLocaleDateString('en-CA', { year: 'numeric', month: 'long', day: 'numeric' });
-}
-
-function calcDaysAbroad(trips, prDate, today) {
-  let absent = 0;
-  trips.forEach(t => {
-    const dep = parseDate(t.dep);
-    const ret = parseDate(t.ret);
-    if (!dep || !ret || dep >= ret) return;
-    const effectiveDep = dep < prDate ? prDate : dep;
-    const effectiveRet = ret > today ? today : ret;
-    if (effectiveDep >= effectiveRet) return;
-    // IRCC: departure day = Canada day, return day = Canada day → subtract interior days only
-    const abroadDays = daysBetween(effectiveDep, effectiveRet) - 1;
-    if (abroadDays > 0) absent += abroadDays;
-  });
-  return absent;
-}
-
-function calcTRCredit() {
-  if (!document.getElementById('trEnabled').checked) return { raw: 0, credit: 0 };
-  const start = parseDate(document.getElementById('trStart').value);
-  const end = parseDate(document.getElementById('trEnd').value);
-  if (!start || !end || end <= start) return { raw: 0, credit: 0 };
-  const rawDays = daysBetween(start, end);
-  const credit = Math.min(MAX_TR_CREDIT, Math.floor(rawDays / 2));
-  return { raw: rawDays, credit };
-}
-
-function updateTRBox() {
-  const { raw, credit } = calcTRCredit();
-  const enabled = document.getElementById('trEnabled').checked;
-  const start = document.getElementById('trStart').value;
-  const end = document.getElementById('trEnd').value;
-  if (enabled && start && end) {
-    document.getElementById('trRawDays').textContent = raw.toLocaleString();
-    document.getElementById('trCreditDays').textContent = '+' + credit.toLocaleString();
-  } else {
-    document.getElementById('trRawDays').textContent = '—';
-    document.getElementById('trCreditDays').textContent = '—';
+  function parseDate(str) {
+    if (!str) return null;
+    const [y, m, d] = str.split('-').map(Number);
+    return new Date(y, m - 1, d);
   }
+
+  function daysBetween(d1, d2) {
+    return Math.round((d2 - d1) / 86400000);
+  }
+
+  function formatDate(date) {
+    return date.toLocaleDateString('en-CA', { year: 'numeric', month: 'long', day: 'numeric' });
+  }
+
+  function calcTRCredit() {
+    const start = parseDate(TR_START_STR);
+    const end   = parseDate(TR_END_STR);
+    const rawDays = daysBetween(start, end);
+    const credit  = Math.min(MAX_TR_CREDIT, Math.floor(rawDays / 2));
+    return { raw: rawDays, credit };
+  }
+
+  function calcDaysAbroad(prDate, today) {
+    let absent = 0;
+    TRIPS.forEach(t => {
+      const dep = parseDate(t.dep);
+      const ret = parseDate(t.ret);
+      if (!dep || !ret || dep >= ret) return;
+      const effectiveDep = dep < prDate ? prDate : dep;
+      const effectiveRet = ret > today ? today : ret;
+      if (effectiveDep >= effectiveRet) return;
+      const abroadDays = daysBetween(effectiveDep, effectiveRet) - 1;
+      if (abroadDays > 0) absent += abroadDays;
+    });
+    return absent;
+  }
+
+  function renderTrips() {
+    const list = document.getElementById('tripList');
+    TRIPS.forEach(t => {
+      const dep = parseDate(t.dep);
+      const ret = parseDate(t.ret);
+      const nights = dep && ret ? Math.max(0, daysBetween(dep, ret) - 1) : 0;
+      const item = document.createElement('div');
+      item.className = 'trip-item';
+      item.innerHTML = `
+        <div class="trip-col">
+          <span class="trip-col-label">Departure</span>
+          <span class="trip-col-val">${t.dep}</span>
+        </div>
+        <div class="trip-col">
+          <span class="trip-col-label">Return</span>
+          <span class="trip-col-val">${t.ret}</span>
+        </div>
+        <span class="trip-days-badge">${nights} days abroad</span>
+      `;
+      list.appendChild(item);
+    });
+  }
+
+  function renderTimeline(prDate, today, effectiveDays, projDate, trCredit) {
+    const tl = document.getElementById('timeline');
+    tl.innerHTML = '';
+
+    const milestones = [
+      {
+        label: `Student credit applied: +${trCredit} days`,
+        dateStr: formatDate(prDate),
+        desc: `${trCredit} bonus days added from your time as a student in Canada (½ rate, max 365).`,
+        type: 'done'
+      },
+      {
+        label: 'Landed as Permanent Resident',
+        dateStr: formatDate(prDate),
+        desc: 'Your Canadian PR journey begins.',
+        type: 'done'
+      },
+      { label: '25% — 274 effective days', days: 274, desc: 'First quarter milestone.', type: null },
+      { label: '50% — 547 effective days', days: 547, desc: 'Halfway there!', type: null },
+      { label: '75% — 821 effective days', days: 821, desc: 'Final stretch.', type: null },
+      {
+        label: 'Eligible to apply for citizenship',
+        dateStr: effectiveDays >= REQUIRED_DAYS ? 'You are eligible now!' : (projDate ? 'Estimated: ' + formatDate(projDate) : ''),
+        desc: '1,095 effective days reached.',
+        type: 'goal'
+      }
+    ];
+
+    milestones.forEach(m => {
+      const div = document.createElement('div');
+      div.className = 'tl-item';
+
+      let dotClass = 'tl-dot';
+      let dateStr = m.dateStr || '';
+
+      if (m.type === 'done') {
+        dotClass += ' done';
+      } else if (m.days !== undefined) {
+        const reached = effectiveDays >= m.days;
+        dotClass += reached ? ' done' : (effectiveDays >= m.days - 30 ? ' current' : '');
+        dateStr = reached ? '✓ Reached' : `${m.days - effectiveDays} days to go`;
+      } else if (m.type === 'goal') {
+        dotClass += effectiveDays >= REQUIRED_DAYS ? ' done' : ' current';
+      }
+
+      div.innerHTML = `
+        <div class="${dotClass}"></div>
+        <div class="tl-date">${dateStr}</div>
+        <div class="tl-title">${m.label}</div>
+        <div class="tl-desc">${m.desc}</div>
+      `;
+      tl.appendChild(div);
+    });
+  }
+
+  function recalculate() {
+    const prDate = parseDate(PR_DATE_STR);
+    const today  = new Date(); today.setHours(0, 0, 0, 0);
+
+    const { raw: trRaw, credit: trCredit } = calcTRCredit();
+    document.getElementById('trRawDays').textContent   = trRaw.toLocaleString();
+    document.getElementById('trCreditDays').textContent = '+' + trCredit.toLocaleString();
+
+    const totalDaysSincePR  = daysBetween(prDate, today) + 1;
+    const daysAbroad        = calcDaysAbroad(prDate, today);
+    const daysInCanadaPR    = totalDaysSincePR - daysAbroad;
+    const totalEffective    = daysInCanadaPR + trCredit;
+
+    const daysLeft = Math.max(0, REQUIRED_DAYS - totalEffective);
+    const pct      = Math.min(100, Math.round((totalEffective / REQUIRED_DAYS) * 100));
+
+    let projDate = null;
+    if (totalEffective < REQUIRED_DAYS) {
+      projDate = new Date(today);
+      projDate.setDate(projDate.getDate() + daysLeft);
+    }
+
+    document.getElementById('daysCount').textContent     = totalEffective.toLocaleString();
+    document.getElementById('progressBar').style.width   = pct + '%';
+    document.getElementById('progressPct').textContent   = pct + '% complete';
+    document.getElementById('projectedDate').textContent = projDate
+      ? 'Eligible ~' + formatDate(projDate)
+      : '✓ Eligible now';
+    document.getElementById('statTotal').textContent     = daysInCanadaPR.toLocaleString();
+    document.getElementById('statAbsent').textContent    = daysAbroad.toLocaleString();
+    document.getElementById('statTR').textContent        = '+' + trCredit.toLocaleString();
+    document.getElementById('statLeft').textContent      = daysLeft.toLocaleString();
+    document.getElementById('eligibleBanner').classList.toggle('visible', totalEffective >= REQUIRED_DAYS);
+
+    renderTimeline(prDate, today, totalEffective, projDate, trCredit);
+  }
+
+  renderTrips();
   recalculate();
-  saveData();
-}
-
-function recalculate() {
-  const prVal = document.getElementById('prDate').value;
-  const name = document.getElementById('userName').value.trim();
-  const prDate = parseDate(prVal);
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-
-  const heroH1 = document.querySelector('.hero h1');
-  heroH1.innerHTML = name
-    ? `${name}'s Path to<br>Canadian Citizenship`
-    : `On the Path to<br>Canadian Citizenship`;
-
-  if (!prDate || prDate > today) {
-    document.getElementById('daysCount').textContent = '—';
-    document.getElementById('progressBar').style.width = '0%';
-    document.getElementById('progressPct').textContent = '0%';
-    document.getElementById('projectedDate').textContent = 'Enter your PR date above';
-    document.getElementById('statTotal').textContent = '—';
-    document.getElementById('statAbsent').textContent = '—';
-    document.getElementById('statTR').textContent = '+0';
-    document.getElementById('statLeft').textContent = '—';
-    document.getElementById('eligibleBanner').classList.remove('visible');
-    renderTimeline(null, null, null, null);
-    return;
-  }
-
-  const trips = getTripsFromDOM();
-  const totalDaysSincePR = daysBetween(prDate, today) + 1;
-  const daysAbroad = calcDaysAbroad(trips, prDate, today);
-  const daysInCanadaPR = totalDaysSincePR - daysAbroad;
-  const { credit: trCredit } = calcTRCredit();
-  const totalEffective = daysInCanadaPR + trCredit;
-
-  const daysLeft = Math.max(0, REQUIRED_DAYS - totalEffective);
-  const pct = Math.min(100, Math.round((totalEffective / REQUIRED_DAYS) * 100));
-
-  let projDate = null;
-  if (totalEffective < REQUIRED_DAYS) {
-    projDate = new Date(today);
-    projDate.setDate(projDate.getDate() + daysLeft);
-  }
-
-  document.getElementById('daysCount').textContent = totalEffective.toLocaleString();
-  document.getElementById('progressBar').style.width = pct + '%';
-  document.getElementById('progressPct').textContent = pct + '% complete';
-  document.getElementById('projectedDate').textContent = projDate
-    ? 'Eligible ~' + formatDate(projDate)
-    : '✓ Eligible now';
-  document.getElementById('statTotal').textContent = daysInCanadaPR.toLocaleString();
-  document.getElementById('statAbsent').textContent = daysAbroad.toLocaleString();
-  document.getElementById('statTR').textContent = '+' + trCredit.toLocaleString();
-  document.getElementById('statLeft').textContent = daysLeft.toLocaleString();
-  document.getElementById('eligibleBanner').classList.toggle('visible', totalEffective >= REQUIRED_DAYS);
-
-  renderTimeline(prDate, today, totalEffective, projDate, trCredit);
-}
-
-function renderTimeline(prDate, today, effectiveDays, projDate, trCredit) {
-  const tl = document.getElementById('timeline');
-  tl.innerHTML = '';
-  if (!prDate) {
-    tl.innerHTML = '<p style="font-size:0.88rem;color:var(--text-muted);">Enter your PR date to see your milestones.</p>';
-    return;
-  }
-
-  const milestones = [];
-
-  if (trCredit > 0) {
-    milestones.push({ label: `Student credit applied: +${trCredit} days`, date: prDate, desc: `${trCredit} bonus days added from your time as a student in Canada (½ rate, max 365).`, type: 'done' });
-  }
-
-  milestones.push(
-    { label: 'Landed as Permanent Resident', date: prDate, desc: 'Your Canadian PR journey begins.', type: 'done' },
-    { label: '25% — 274 effective days', date: null, days: 274, desc: 'First quarter milestone.', type: null },
-    { label: '50% — 547 effective days', date: null, days: 547, desc: 'Halfway there!', type: null },
-    { label: '75% — 821 effective days', date: null, days: 821, desc: 'Final stretch.', type: null },
-    { label: 'Eligible to apply for citizenship', date: projDate, desc: '1,095 effective days reached.', type: null }
-  );
-
-  milestones.forEach((m, i) => {
-    const div = document.createElement('div');
-    div.className = 'tl-item';
-
-    let dotClass = 'tl-dot';
-    let dateStr = '';
-
-    if (m.type === 'done') {
-      dotClass += ' done';
-      dateStr = formatDate(m.date);
-    } else if (m.days !== undefined) {
-      const reached = effectiveDays >= m.days;
-      dotClass += reached ? ' done' : (effectiveDays >= m.days - 30 ? ' current' : '');
-      dateStr = reached ? '✓ Reached' : `${m.days - effectiveDays} days to go`;
-    } else if (m.date || effectiveDays >= REQUIRED_DAYS) {
-      const eligible = effectiveDays >= REQUIRED_DAYS;
-      dotClass += eligible ? ' done' : ' current';
-      dateStr = eligible ? 'You are eligible now!' : (m.date ? 'Estimated: ' + formatDate(m.date) : '');
-    }
-
-    div.innerHTML = `
-      <div class="${dotClass}"></div>
-      <div class="tl-date">${dateStr}</div>
-      <div class="tl-title">${m.label}</div>
-      <div class="tl-desc">${m.desc}</div>
-    `;
-    tl.appendChild(div);
-  });
-}
-
-function addTrip(dep = '', ret = '') {
-  const list = document.getElementById('tripList');
-  const item = document.createElement('div');
-  item.className = 'trip-item';
-  item.innerHTML = `
-    <input type="date" class="trip-dep" value="${dep}" placeholder="Departure" />
-    <input type="date" class="trip-ret" value="${ret}" placeholder="Return" />
-    <span class="trip-days-badge">— days</span>
-    <button class="trip-delete" title="Remove trip">✕</button>
-  `;
-
-  const depIn = item.querySelector('.trip-dep');
-  const retIn = item.querySelector('.trip-ret');
-  const badge = item.querySelector('.trip-days-badge');
-  const delBtn = item.querySelector('.trip-delete');
-
-  function updateBadge() {
-    const d = parseDate(depIn.value);
-    const r = parseDate(retIn.value);
-    if (d && r && r > d) {
-      const nights = daysBetween(d, r) - 1;
-      badge.textContent = Math.max(0, nights) + ' days abroad';
-    } else {
-      badge.textContent = '— days';
-    }
-    recalculate();
-    saveData();
-  }
-
-  depIn.addEventListener('change', updateBadge);
-  retIn.addEventListener('change', updateBadge);
-  delBtn.addEventListener('click', () => { item.remove(); recalculate(); saveData(); });
-
-  if (dep && ret) updateBadge();
-  list.appendChild(item);
-}
-
-// Init
-const saved = loadData();
-if (saved) {
-  if (saved.prDate) document.getElementById('prDate').value = saved.prDate;
-  if (saved.userName) document.getElementById('userName').value = saved.userName;
-  if (saved.trEnabled) {
-    document.getElementById('trEnabled').checked = true;
-    document.getElementById('trFields').style.display = 'block';
-  }
-  if (saved.trStart) document.getElementById('trStart').value = saved.trStart;
-  if (saved.trEnd) document.getElementById('trEnd').value = saved.trEnd;
-  if (saved.trips && saved.trips.length) {
-    saved.trips.forEach(t => addTrip(t.dep, t.ret));
-  }
-}
-
-document.getElementById('prDate').addEventListener('change', () => { recalculate(); saveData(); });
-document.getElementById('userName').addEventListener('input', () => { recalculate(); saveData(); });
-document.getElementById('addTripBtn').addEventListener('click', () => addTrip());
-
-document.getElementById('trEnabled').addEventListener('change', function() {
-  document.getElementById('trFields').style.display = this.checked ? 'block' : 'none';
-  updateTRBox();
-});
-document.getElementById('trStart').addEventListener('change', updateTRBox);
-document.getElementById('trEnd').addEventListener('change', updateTRBox);
-
-updateTRBox();
-recalculate();
 </script>
 </body>
 </html>
